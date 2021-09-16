@@ -13,6 +13,8 @@ library(tidyverse)
 ## R Markdown
 This is data from every bridge in Illinois(To get data on every bridge in the US, you had to have a zip file which couldn't be uploaded to Github). For information on what each column represents, please go to https://www.fhwa.dot.gov/bridge/mtguide.pdf.
 
+Link To GitHub: https://github.com/kevinkevink/Stat433/blob/main/HW2/README.html
+
 
 ```{r loadData, echo=FALSE}
   bridgeData = read_delim("https://www.fhwa.dot.gov/bridge/nbi/2020/delimited/IL20.txt", col_names=TRUE)
