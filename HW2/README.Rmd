@@ -18,7 +18,8 @@ Link To GitHub: https://github.com/kevinkevink/Stat433/blob/main/HW2/README.html
 
 ```{r loadData, echo=FALSE}
   bridgeData = read_delim("https://www.fhwa.dot.gov/bridge/nbi/2020/delimited/IL20.txt", col_names=TRUE)
-  head(bridgeData, 5)
+  str(bridgeData)
+  plot(bridgeData$STRUCTURE_NUMBER_008, bridgeData$COUNTY_CODE_003)
 ```
 
 
