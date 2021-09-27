@@ -12,6 +12,11 @@ library(nycflights13)
 library(ggplot2)
 ```
 
+
+Github Link:
+https://github.com/kevinkevink/Stat433/blob/main/HW3/HW3.html
+
+
 ## Question 1
 How many flights have a missing dep_time? What other variables are missing? What might these rows represent?
 
