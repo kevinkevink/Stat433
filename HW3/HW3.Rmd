@@ -1,0 +1,46 @@
+---
+title: "Week 3 Homework"
+author: "Kevin Hutchins"
+date: "9/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(nycflights13)
+library(ggplot2)
+```
+
+## Question 1
+How many flights have a missing dep_time? What other variables are missing? What might these rows represent?
+
+```{r q1p1}
+nrow(filter(flights, is.na(dep_time)))
+```
+8255 flights have a missing departure time.
+
+After looking at the data using view(), it seems that if the departure time is missing, the delay, arrival time, arrival delay, and air time values are missing. This probably coincides with flights being canceled, as if a plane flight is canceled before take off, it will never fly and reach its destination. Plus, plane cancellations happen fairly often, which would explain why there are over 8000 of them.
+```{r q1p2}
+head(select(filter(flights, is.na(dep_time)), dep_time, dep_delay, arr_time, arr_delay, air_time), 50)
+```
+
+## Question 2
+Currently dep_time and sched_dep_time are convenient to look at, but hard to compute with because they’re not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
+
+I converted dep_time into minutes and added it next to dep_time, labled as deptime. I also converted sched_dep_time into minutes and added the new column labled scheddeptime next to sched_dep_time.
+
+```{r q2}
+data = mutate(flights, deptime = ((dep_time - (dep_time %% 100)) * 0.6 + (dep_time %% 100)), scheddeptime = (sched_dep_time - (sched_dep_time %% 100)) * 0.6  +  (sched_dep_time %% 100)) %>% relocate(deptime, .after = dep_time) %>% relocate(scheddeptime, .after = sched_dep_time)
+head(data, 100)
+```
+
+## Question 3
+Look at the number of canceled flights per day. Is there a pattern? Is the proportion of canceled flights related to the average delay? Use multiple dyplr operations, all on one line, concluding with ggplot(aes(x= ,y=)) + geom_point()
+
+```{r q3}
+flights %>% group_by(month, day) %>% summarize(proportion = sum(is.na(dep_time)) / n(), averagedelay = mean(dep_delay, na.rm = T)) %>% ggplot(aes(x= proportion,y=averagedelay)) + geom_point()
+```
+
+there seems to be some weak correlation between the average departure delay and number of canceled flights per day. It seems that the greater number of canceled flights there are, the greater the average departure delay is on average. This makes sense, as if there is bad weather, more flights will get canceled and more flights will be delayed during the weather which stops planes from flying. 
+
