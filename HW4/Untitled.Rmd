@@ -1,0 +1,147 @@
+---
+title: "Flight Analysis"
+author: "Kevin Hutchins"
+date: "10/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(dplyr)
+library(nycflights13)
+library(ggplot2)
+```
+
+##Summary
+
+In this analysis, I tried to answer the question "what time of the day should I fly if I want to avoid delays?". The answer I found was that you should try to fly as early as possibly, and specifically avoid the hours of 6-8 pm as they consist of the highest average delays by far. It must be some sort of airline rush hour, as the same pattern of peaking delays around 6-8 pm occurred at different airports, with different airlines, and in different times of the year. Some airlines had longer delays on average, while some were much more consistent. I also discovered that June and July are the worst months to fly in delay-wise, while September and October are the best. As far as origin airports went, there wasn't much of a difference. However, Newark Airport was slightly slower, and should be considered when trying to factor in delay time. Overall, with all three factors, the same pattern remained: delays were lower in the morning and ramped up until 7 pm, and which point they fell again. It seems that if you want to avoid delays, the number one thing you should do is fly in the morning.
+
+## What time of day should you fly if you want to avoid delays as much as possible?
+
+I created a graph that groups the data by their scheduled departure times and compares their average delays.The scheduled departure time of each flight is in 24 hour time. From this graph, it seems that you want to get a flight as early as possible and avoid ~7 pm, as that is the time with the longest departure delays.
+
+```{r hours not to fly}
+data = mutate(flights, scheddeptime = ((sched_dep_time - (sched_dep_time %% 100)) * 0.01)) %>% relocate(scheddeptime, .after = sched_dep_time)
+plotting = data %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+
+p <- ggplot(data = plotting,
+            mapping = aes(x = scheddeptime,
+                          y = avg_delay))
+p + geom_point() + geom_smooth()
+```
+
+##Does that hour depend on airline?
+
+Now, I wanted to see if the best time of day to fly changes for particular airlines. So, I created a graph that compares the scheduled time to average delay like the first one, but separates flight data by airline. Each airline is a different color on the graph. From this graph, we can tell that some airlines are more consistent than others. For example, if we want a smaller delay, we should favor the white and pink airlines, which are US Airways Inc. and Virgin America. We should also avoid certain airlines, that are more consistently late. The two noticeably worst airlines are Envoy Air and United Air Lines Inc., which are yellow and purple. These airlines should be avoided, especially during peak flight times of around 7 pm.
+
+Note: not all airlines were placed on the graph. These airlines were chosen because they had over 1000 flights in the data. Any airline with less than that was ignored.
+
+
+```{r question 1}
+
+Data9E = data %>% filter(carrier == "9E") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataAA = data %>% filter(carrier == "AA") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataB6 = data %>% filter(carrier == "B6") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataDL = data %>% filter(carrier == "DL") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataEV = data %>% filter(carrier == "EV") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataFL = data %>% filter(carrier == "FL") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataMQ = data %>% filter(carrier == "MQ") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataUA = data %>% filter(carrier == "UA") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataUS = data %>% filter(carrier == "US") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataVX = data %>% filter(carrier == "VX") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataWN = data %>% filter(carrier == "WN") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+
+p <- ggplot() + geom_point(data=Data9E, mapping = aes(x = scheddeptime,y = avg_delay)) +
+          geom_point(data=DataAA, mapping = aes(x = scheddeptime,y = avg_delay), color = 'red') + 
+          geom_point(data=DataB6, mapping = aes(x = scheddeptime,y = avg_delay), color = 'green') + 
+          geom_point(data=DataDL, mapping = aes(x = scheddeptime,y = avg_delay), color = 'blue') + 
+          geom_point(data=DataEV, mapping = aes(x = scheddeptime,y = avg_delay), color = 'brown') + 
+          geom_point(data=DataFL, mapping = aes(x = scheddeptime,y = avg_delay), color = 'orange') + 
+          geom_point(data=DataMQ, mapping = aes(x = scheddeptime,y = avg_delay), color = 'yellow') + 
+          geom_point(data=DataUA, mapping = aes(x = scheddeptime,y = avg_delay), color = 'purple') + 
+          geom_point(data=DataUS, mapping = aes(x = scheddeptime,y = avg_delay), color = 'white') + 
+          geom_point(data=DataVX, mapping = aes(x = scheddeptime,y = avg_delay), color = 'pink') + 
+          geom_point(data=DataWN, mapping = aes(x = scheddeptime,y = avg_delay), color = 'black') +
+          geom_smooth(data=DataAA, mapping = aes(x = scheddeptime,y = avg_delay), color = 'red') + 
+          geom_smooth(data=DataB6, mapping = aes(x = scheddeptime,y = avg_delay), color = 'green') + 
+          geom_smooth(data=DataDL, mapping = aes(x = scheddeptime,y = avg_delay), color = 'blue') + 
+          geom_smooth(data=DataEV, mapping = aes(x = scheddeptime,y = avg_delay), color = 'brown') + 
+          geom_smooth(data=DataFL, mapping = aes(x = scheddeptime,y = avg_delay), color = 'orange') + 
+          geom_smooth(data=DataMQ, mapping = aes(x = scheddeptime,y = avg_delay), color = 'yellow')+ 
+          geom_smooth(data=DataUA, mapping = aes(x = scheddeptime,y = avg_delay), color = 'purple') + 
+          geom_smooth(data=DataUS, mapping = aes(x = scheddeptime,y = avg_delay), color = 'white') + 
+          geom_smooth(data=DataVX, mapping = aes(x = scheddeptime,y = avg_delay), color = 'pink') + 
+          geom_smooth(data=DataWN, mapping = aes(x = scheddeptime,y = avg_delay), color = 'black')
+p
+
+
+```
+
+### Does time of year matter???
+For the second part, I wanted to see if time of year mattered. So, I compared each departure time hour with the average delay, after filtering for each month. The resulting graph is below. From the graph, we can tell you will want to fly around September and October for shorter times all around. You will also want to avoid June and July, or fly as early as possible. It seems that the same pattern is consistent for all the months, but much more pronounced with much longer delays on average around 7 pm for June and July.
+
+```{r question 12}
+
+DataJan = data %>% filter(month == 1) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataFeb = data %>% filter(month == 2) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataMar = data %>% filter(month == 3) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataApr = data %>% filter(month == 4) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataMay = data %>% filter(month == 5) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataJun = data %>% filter(month == 6) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataJul = data %>% filter(month == 7) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataAug = data %>% filter(month == 8) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataSep = data %>% filter(month == 9) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataOct = data %>% filter(month == 10) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataNov = data %>% filter(month == 11) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataDec = data %>% filter(month == 12) %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+
+p <- ggplot() + geom_point(data=Data9E, mapping = aes(x = scheddeptime,y = avg_delay)) +
+          geom_point(data=DataJan, mapping = aes(x = scheddeptime,y = avg_delay), color = 'red') + 
+          geom_point(data=DataFeb, mapping = aes(x = scheddeptime,y = avg_delay), color = 'green') + 
+          geom_point(data=DataMar, mapping = aes(x = scheddeptime,y = avg_delay), color = 'blue') + 
+          geom_point(data=DataApr, mapping = aes(x = scheddeptime,y = avg_delay), color = 'brown') + 
+          geom_point(data=DataMay, mapping = aes(x = scheddeptime,y = avg_delay), color = 'orange') + 
+          geom_point(data=DataJun, mapping = aes(x = scheddeptime,y = avg_delay), color = 'yellow') + 
+          geom_point(data=DataJul, mapping = aes(x = scheddeptime,y = avg_delay), color = 'purple') + 
+          geom_point(data=DataAug, mapping = aes(x = scheddeptime,y = avg_delay), color = 'darkolivegreen') + 
+          geom_point(data=DataSep, mapping = aes(x = scheddeptime,y = avg_delay), color = 'pink') + 
+          geom_point(data=DataOct, mapping = aes(x = scheddeptime,y = avg_delay), color = 'beige') +
+          geom_point(data=DataNov, mapping = aes(x = scheddeptime,y = avg_delay), color = 'grey') + 
+          geom_point(data=DataDec, mapping = aes(x = scheddeptime,y = avg_delay), color = 'cyan') +
+          geom_smooth(data=DataJan, mapping = aes(x = scheddeptime,y = avg_delay), color = 'red') + 
+          geom_smooth(data=DataFeb, mapping = aes(x = scheddeptime,y = avg_delay), color = 'green') + 
+          geom_smooth(data=DataMar, mapping = aes(x = scheddeptime,y = avg_delay), color = 'blue') + 
+          geom_smooth(data=DataApr, mapping = aes(x = scheddeptime,y = avg_delay), color = 'brown') + 
+          geom_smooth(data=DataMay, mapping = aes(x = scheddeptime,y = avg_delay), color = 'orange') + 
+          geom_smooth(data=DataJun, mapping = aes(x = scheddeptime,y = avg_delay), color = 'yellow') + 
+          geom_smooth(data=DataJul, mapping = aes(x = scheddeptime,y = avg_delay), color = 'purple') + 
+          geom_smooth(data=DataAug, mapping = aes(x = scheddeptime,y = avg_delay), color = 'darkolivegreen') + 
+          geom_smooth(data=DataSep, mapping = aes(x = scheddeptime,y = avg_delay), color = 'pink') + 
+          geom_smooth(data=DataOct, mapping = aes(x = scheddeptime,y = avg_delay), color = 'beige') +
+          geom_smooth(data=DataNov, mapping = aes(x = scheddeptime,y = avg_delay), color = 'grey') + 
+          geom_smooth(data=DataDec, mapping = aes(x = scheddeptime,y = avg_delay), color = 'cyan')
+p
+
+
+```
+
+##Does Flight Origin matter?
+
+For the third part, I wanted to see if flight origin mattered in determining when to fly. I compared each departure time hour with the average delay, after filtering for each airport origin. Luckily, there are only three. It seems flight origin does not matter too much, except that if you depart from Newark Airport(Red) your delay will be on average slightly higher, no matter when you leave.
+
+```{r question 3}
+DataEWR = data %>% filter(origin == "EWR") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataLGA = data %>% filter(origin == "LGA") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+DataJFK = data %>% filter(origin == "JFK") %>% group_by(scheddeptime) %>% summarize(avg_delay = mean(dep_delay, na.rm = T), num = n())
+
+p <- ggplot() + geom_point(data=DataEWR, mapping = aes(x = scheddeptime,y = avg_delay), color = 'red') + 
+          geom_point(data=DataLGA, mapping = aes(x = scheddeptime,y = avg_delay), color = 'green') + 
+          geom_point(data=DataJFK, mapping = aes(x = scheddeptime,y = avg_delay), color = 'blue') + 
+          geom_smooth(data=DataEWR, mapping = aes(x = scheddeptime,y = avg_delay), color = 'red') + 
+          geom_smooth(data=DataLGA, mapping = aes(x = scheddeptime,y = avg_delay), color = 'green') + 
+          geom_smooth(data=DataJFK, mapping = aes(x = scheddeptime,y = avg_delay), color = 'blue') 
+         
+p
+
+
+```
