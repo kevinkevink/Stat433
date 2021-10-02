@@ -12,6 +12,8 @@ library(nycflights13)
 library(ggplot2)
 ```
 
+Link to GitHub: https://github.com/kevinkevink/Stat433/blob/main/HW4/HW4.html
+
 ##Summary
 
 In this analysis, I tried to answer the question "what time of the day should I fly if I want to avoid delays?". The answer I found was that you should try to fly as early as possibly, and specifically avoid the hours of 6-8 pm as they consist of the highest average delays by far. It must be some sort of airline rush hour, as the same pattern of peaking delays around 6-8 pm occurred at different airports, with different airlines, and in different times of the year. Some airlines had longer delays on average, while some were much more consistent. I also discovered that June and July are the worst months to fly in delay-wise, while September and October are the best. As far as origin airports went, there wasn't much of a difference. However, Newark Airport was slightly slower, and should be considered when trying to factor in delay time. Overall, with all three factors, the same pattern remained: delays were lower in the morning and ramped up until 7 pm, and which point they fell again. It seems that if you want to avoid delays, the number one thing you should do is fly in the morning.
